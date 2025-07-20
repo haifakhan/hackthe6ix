@@ -36,16 +36,49 @@ export default function ProfilePage() {
   const [height, setHeight] = useState("175") // in cm
   const [medicalHistory, setMedicalHistory] = useState("No significant medical history.")
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log({ name, age, ethnicity, gender, weight, height, medicalHistory })
+  const handleSave = async (e: React.FormEvent) => {
+  e.preventDefault()
+
+  const userId = localStorage.getItem("userId")
+  // if (!userId) {
+  //   alert("User not logged in.")
+  //   return
+  // }
+
+  const profileData = {
+    userId,
+    name,
+    age,
+    gender,
+    ethnicity,
+    weight,
+    height,
+    medicalHistory,
+  }
+
+  try {
+    const res = await fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profileData),
+    })
+
+    if (!res.ok) {
+      throw new Error("Failed to save profile")
+    }
+
     toast({
       title: "Profile Updated!",
       description: "Your profile information has been saved.",
       className: "bg-derma-teal-100 text-derma-teal-800",
     })
+
     router.push("/dashboard/chat")
+  } catch (error) {
+    console.error("Error saving profile:", error)
+    alert("Something went wrong saving your profile.")
   }
+}
 
   return (
     <div className="container mx-auto py-8">

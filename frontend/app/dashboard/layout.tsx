@@ -1,19 +1,24 @@
-// frontend/app/dashboard/layout.tsx
 "use client"
 
-import Link from "next/link"
-import { ReactNode, useEffect, useState } from "react"
+import type React from "react"
+
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { UserNav } from "@/components/user-nav"
 import { checkAuth } from "@/lib/auth"
+import { Loader2 } from "lucide-react"
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const router = useRouter()
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
-  // Auth guard
   useEffect(() => {
     if (!checkAuth()) {
-      router.push("/login")
+      router.push("/login") // Redirect to login if not authenticated
     } else {
       setLoading(false)
     }
@@ -21,29 +26,21 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <p>Loading…</p>
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-derma-blue-50 to-derma-teal-100">
+        <Loader2 className="h-10 w-10 animate-spin text-derma-blue-500" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-blue-50">
-      {/* Tab bar */}
-      <nav className="bg-white shadow flex space-x-4 px-6 py-3">
-        <Link href="/dashboard/chat" className="hover:underline">
-          Chat
-        </Link>
-        <Link href="/dashboard/analysis" className="hover:underline">
-          Skin Analysis
-        </Link>
-        <Link href="/dashboard/profile" className="hover:underline">
-          Profile
-        </Link>
-      </nav>
-
-      {/* Page content */}
-      <main>{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-40 w-full border-b bg-white/90 backdrop-blur-sm">
+        <div className="container flex h-16 items-center justify-between py-4">
+          <h2 className="text-2xl font-bold text-derma-blue-700">Dermobot</h2>
+          <UserNav />
+        </div>
+      </header>
+      <main className="flex-1">{children}</main>
     </div>
   )
 }

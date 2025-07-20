@@ -1,38 +1,28 @@
 "use client"
-import React, { useState } from "react"
+
+import type React from "react"
+
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { login } from "@/lib/auth"
 
 export function AuthForm({ type }: { type: "login" | "register" }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-
-  const VALID_EMAIL = "you@example.com"
-  const VALID_PASSWORD = "password123"
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-
-    // only allow ONE hard-coded user
-    if (email === VALID_EMAIL && password === VALID_PASSWORD) {
-      // on "register", just pretend it worked
-      // on "login", same
-      router.push("/dashboard/profile")
+    // Simulate authentication
+    if (email && password) {
+      login()
+      router.push("/dashboard/profile") // Redirect to profile completion after "login"
     } else {
-      setError("Invalid credentials. Try you@example.com / password123")
+      alert("Please enter email and password.")
     }
   }
 
@@ -43,20 +33,17 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
           {type === "login" ? "Welcome Back!" : "Join DermaScan AI"}
         </CardTitle>
         <CardDescription>
-          {type === "login"
-            ? "Sign in to your account"
-            : "Create your account to get started"}
+          {type === "login" ? "Sign in to your account" : "Create your account to get started"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="text-red-500">{error}</p>}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
-              placeholder={VALID_EMAIL}
+              placeholder="m@example.com"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -67,16 +54,12 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
             <Input
               id="password"
               type="password"
-              placeholder={VALID_PASSWORD}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <Button
-            type="submit"
-            className="w-full bg-derma-blue-500 hover:bg-derma-blue-600"
-          >
+          <Button type="submit" className="w-full bg-derma-blue-500 hover:bg-derma-blue-600">
             {type === "login" ? "Login" : "Register"}
           </Button>
         </form>
@@ -84,21 +67,15 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
       <CardFooter className="text-center text-sm text-muted-foreground">
         {type === "login" ? (
           <p>
-            Don’t have an account?{" "}
-            <a
-              href="/register"
-              className="font-medium text-derma-blue-500 hover:underline"
-            >
+            Don&apos;t have an account?{" "}
+            <a href="/register" className="font-medium text-derma-blue-500 hover:underline">
               Register
             </a>
           </p>
         ) : (
           <p>
             Already have an account?{" "}
-            <a
-              href="/login"
-              className="font-medium text-derma-blue-500 hover:underline"
-            >
+            <a href="/login" className="font-medium text-derma-blue-500 hover:underline">
               Login
             </a>
           </p>
@@ -106,9 +83,4 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
       </CardFooter>
     </Card>
   )
-  
-}
-
-export function checkAuth(): boolean {
-  return true
 }

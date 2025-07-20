@@ -94,94 +94,75 @@ export function ChatInterface() {
     setIsSending(false)
   }
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) {
+const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0]
+
+  if (!file) {
+    toast({
+      title: "No file selected",
+      description: "Please choose an image file to upload.",
+      variant: "destructive",
+    })
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onloadend = () => {
+    const imageUrl = reader.result as string
+
+    if (!imageUrl) {
       toast({
-        title: "No file selected",
-        description: "Please choose an image file to upload.",
+        title: "Upload Failed",
+        description: "Could not read the image. Try a different file.",
         variant: "destructive",
       })
       return
     }
 
+    const resultId = `analysis_${Date.now()}`
+    const analysisData = {
+      imageUrl,
+      result: "Benign Mole",
+      confidence: 92,
+      severity: "Low",
+      aiInsights: "The AI analysis indicates a high probability that this is a common benign mole. These are typically harmless.",
+      recommendations: [
+        "Monitor changes in mole appearance.",
+        "Apply sunscreen daily.",
+        "Consult a dermatologist yearly.",
+      ],
+      products: [
+        {
+          name: "EltaMD UV Clear SPF 46",
+          imageUrl: "/placeholder.svg?height=48&width=48",
+          link: "#",
+        },
+        {
+          name: "CeraVe Moisturizing Cream",
+          imageUrl: "/placeholder.svg?height=48&width=48",
+          link: "#",
+        },
+      ],
+      homemadeRemedies: [
+        "Apply aloe vera gel twice daily.",
+        "Use cooled green tea bags as compress.",
+      ],
+    }
+
+    // Store in sessionStorage
+    sessionStorage.setItem(resultId, JSON.stringify(analysisData))
+
     toast({
-      title: "Uploading Image...",
-      description: "Processing your skin image for analysis.",
-      className: "bg-blue-100 text-blue-800",
-      duration: 2000,
+      title: "Image Uploaded!",
+      description: "Redirecting to your analysis results...",
+      className: "bg-green-100 text-green-800",
     })
 
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      const imageUrl = reader.result as string
-      const newImageMessage: Message = {
-        id: Date.now().toString(),
-        sender: "user",
-        imageUrl: imageUrl,
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, newImageMessage])
-      setIsTyping(true)
-
-      // Simulate ML analysis and then redirect
-      setTimeout(() => {
-        const simulatedAnalysis = {
-          result: "Benign Mole",
-          confidence: 92,
-          severity: "Low",
-          aiInsights: "The AI analysis indicates a high probability that this is a common benign mole. These are typically harmless, but consistent self-monitoring is recommended.",
-          recommendations: [
-            "Monitor for changes in size, shape, or color regularly.",
-            "Apply broad-spectrum sunscreen (SPF 30+) daily.",
-            "Avoid prolonged sun exposure during peak hours.",
-            "Schedule an annual skin check with a dermatologist.",
-          ],
-          products: [
-            {
-              name: "EltaMD UV Clear SPF 46",
-              imageUrl: "/placeholder.svg?height=48&width=48",
-              link: "#",
-            },
-            {
-              name: "CeraVe Moisturizing Cream",
-              imageUrl: "/placeholder.svg?height=48&width=48",
-              link: "#",
-            },
-          ],
-          homemadeRemedies: [
-            "Aloe Vera Gel: Apply pure aloe vera gel to soothe skin.",
-            "Green Tea Compress: Brew green tea, let it cool, and apply as a compress.",
-          ],
-        }
-
-        // Construct URL with query parameters for redirection
-        const params = new URLSearchParams()
-        params.append("imageUrl", imageUrl)
-        params.append("result", simulatedAnalysis.result)
-        params.append("confidence", simulatedAnalysis.confidence.toString())
-        params.append("severity", simulatedAnalysis.severity)
-        params.append("aiInsights", simulatedAnalysis.aiInsights)
-
-        simulatedAnalysis.recommendations.forEach((rec) => params.append("recommendations", rec))
-        simulatedAnalysis.products.forEach((prod) => {
-          params.append("productNames", prod.name)
-          params.append("productUrls", prod.link)
-          params.append("productImages", prod.imageUrl)
-        })
-        simulatedAnalysis.homemadeRemedies.forEach((remedy) => params.append("homemadeRemedies", remedy))
-
-        setIsTyping(false)
-        toast({
-          title: "Analysis Complete!",
-          description: "Redirecting to your personalized analysis dashboard.",
-          className: "bg-green-100 text-green-800",
-        })
-        router.push(`/dashboard/analysis?${params.toString()}`)
-      }, 3000)
-    }
-    reader.readAsDataURL(file)
+    router.push(`/dashboard/analysis?resultId=${resultId}`)
   }
+
+  reader.readAsDataURL(file)
+}
 
   const addReaction = (messageId: string, reaction: string) => {
     setMessages(prev => 

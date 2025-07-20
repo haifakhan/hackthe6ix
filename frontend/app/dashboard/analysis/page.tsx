@@ -5,48 +5,137 @@ import { SkinAnalysisCard } from "@/components/skin-analysis-card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { useEffect, useState } from "react"
+
+type SeverityLevel = "Low" | "Medium" | "High" | "Urgent"
+
+interface AnalysisData {
+  imageUrl: string
+  result: string
+  confidence: number
+  severity: SeverityLevel
+  aiInsights: string
+  recommendations: string[]
+  products: {
+    name: string
+    imageUrl: string
+    link: string
+  }[]
+  homemadeRemedies: string[]
+}
 
 export default function AnalysisResultsPage() {
   const searchParams = useSearchParams()
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const imageUrl = searchParams.get("imageUrl") || "/placeholder.svg?height=200&width=200"
-  const analysisResult = searchParams.get("result") || "Unknown Skin Condition"
-  const confidence = Number.parseFloat(searchParams.get("confidence") || "0")
-  const severity = (searchParams.get("severity") as "Low" | "Medium" | "High" | "Urgent") || "Low"
+  useEffect(() => {
+    const caseType = searchParams.get("case") // 'c' or 'h'
+    const analysisId = searchParams.get("analysisId")
 
-  // Simulated AI Insights and Recommendations (for demonstration)
-  const aiInsights =
-    searchParams.get("aiInsights") ||
-    `Based on the image analysis, the lesion appears to be a common ${analysisResult.toLowerCase()}. While generally benign, it's important to monitor for any changes. Our AI suggests a low-risk profile for this specific finding.`
-  const recommendations =
-    searchParams.getAll("recommendations").length > 0
-      ? searchParams.getAll("recommendations")
-      : [
-          "Maintain good skin hygiene and keep the area clean.",
-          "Avoid picking or scratching the lesion to prevent irritation.",
-          "Apply a gentle, non-comedogenic moisturizer to keep skin hydrated.",
-          "Protect the area from direct sun exposure with clothing or sunscreen.",
-          "Schedule a follow-up with a dermatologist if you notice any growth, color change, or discomfort.",
-        ]
+    if (!caseType || !["c", "h"].includes(caseType)) {
+      setError("Missing or invalid case parameter.")
+      setLoading(false)
+      return
+    }
 
-  const productNames = searchParams.getAll("productNames")
-  const productUrls = searchParams.getAll("productUrls")
-  const productImages = searchParams.getAll("productImages")
+    if (!analysisId) {
+      setError("Missing analysis ID.")
+      setLoading(false)
+      return
+    }
 
-  const products = productNames.map((name, index) => ({
-    name,
-    imageUrl: productImages[index] || "/placeholder.svg?height=48&width=48",
-    link: productUrls[index] || "#",
-  }))
+    const storedData = sessionStorage.getItem(analysisId)
+    if (!storedData) {
+      setError("No analysis data found.")
+      setLoading(false)
+      return
+    }
 
-  const homemadeRemedies =
-    searchParams.getAll("homemadeRemedies").length > 0
-      ? searchParams.getAll("homemadeRemedies")
-      : [
-          "Apply aloe vera gel for soothing effects.",
-          "Use a cool compress to reduce inflammation.",
-          "Consider a diluted apple cider vinegar solution (patch test first).",
-        ]
+    try {
+      const parsedData = JSON.parse(storedData)
+
+      const analysisPresets: Record<"c" | "h", AnalysisData> = {
+        c: {
+          imageUrl: parsedData.imageUrl,
+          result: "Possible Skin Cancer (Melanoma)",
+          confidence: 87,
+          severity: "Urgent",
+          aiInsights: "The analysis suggests this lesion may indicate melanoma. Immediate follow-up with a certified dermatologist is critical.",
+          recommendations: [
+            "Do not ignore this result — book an urgent dermatology consult.",
+            "Avoid sun exposure until further diagnosis is complete.",
+            "Track any changes in size, asymmetry, or color.",
+          ],
+          products: [
+            {
+              name: "Neutrogena Sensitive Skin Sunscreen SPF 60+",
+              imageUrl: "/placeholder.svg?height=48&width=48",
+              link: "#",
+            },
+          ],
+          homemadeRemedies: [
+            "None — please seek professional medical attention immediately.",
+          ],
+        },
+        h: {
+          imageUrl: parsedData.imageUrl, // Show uploaded image for both cases
+          result: "Healthy Skin – No Conditions Detected",
+          confidence: 98,
+          severity: "Low",
+          aiInsights: "Your skin appears healthy with no visible signs of dermatological concern. Maintain your current skincare habits.",
+          recommendations: [
+            "Use a gentle cleanser daily.",
+            "Apply a broad-spectrum SPF 30+ sunscreen.",
+            "Stay hydrated and follow a balanced diet.",
+          ],
+          products: [
+            {
+              name: "CeraVe Hydrating Cleanser",
+              imageUrl: "/placeholder.svg?height=48&width=48",
+              link: "#",
+            },
+            {
+              name: "EltaMD UV Daily SPF 40",
+              imageUrl: "/placeholder.svg?height=48&width=48",
+              link: "#",
+            },
+          ],
+          homemadeRemedies: [
+            "Honey & Yogurt Mask: Hydrates and soothes skin.",
+            "Cucumber slices for refreshing puffiness reduction.",
+          ],
+        },
+      }
+
+      setAnalysisData(analysisPresets[caseType as "c" | "h"])
+    } catch (err) {
+      setError("Failed to parse analysis data.")
+    } finally {
+      setLoading(false)
+    }
+  }, [searchParams])
+
+  if (loading) {
+    return <div className="p-8 text-center">Loading...</div>
+  }
+
+  if (error || !analysisData) {
+    return (
+      <div className="container mx-auto py-8 text-center">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-2xl mx-auto">
+          <h1 className="text-2xl font-bold mb-4 text-red-700">Error</h1>
+          <p className="mb-6 text-red-600">{error || "Unknown error occurred."}</p>
+          <Link href="/dashboard/chat">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3">
+              Back to Chat
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -58,15 +147,16 @@ export default function AnalysisResultsPage() {
           </Button>
         </Link>
       </div>
+
       <SkinAnalysisCard
-        imageUrl={imageUrl}
-        analysisResult={analysisResult}
-        confidence={confidence}
-        severity={severity}
-        aiInsights={aiInsights}
-        recommendations={recommendations}
-        products={products}
-        homemadeRemedies={homemadeRemedies}
+        imageUrl={analysisData.imageUrl}
+        analysisResult={analysisData.result}
+        confidence={analysisData.confidence}
+        severity={analysisData.severity}
+        aiInsights={analysisData.aiInsights}
+        recommendations={analysisData.recommendations}
+        products={analysisData.products}
+        homemadeRemedies={analysisData.homemadeRemedies}
       />
     </div>
   )
