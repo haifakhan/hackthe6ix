@@ -1,49 +1,42 @@
-import React from "react"
+const CircularProgress = ({ value, size = 80 }: { value: number; size?: number }) => {
+  const strokeWidth = 14; // increased from 8 to 14
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = circumference - (value / 100) * circumference;
 
-interface CircularProgressProps {
-  value: number
-  size?: number
-  strokeWidth?: number
-  gradient?: string
-}
+  let strokeColor = "#14b8a6"; // default to teal
 
-export const CircularProgress: React.FC<CircularProgressProps> = ({
-  value,
-  size = 100,
-  strokeWidth = 10,
-  gradient = "from-blue-400 to-blue-600",
-}) => {
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference - (value / 100) * circumference
+  if (value >= 90) strokeColor = "#22c55e"; // green
+  else if (value >= 70) strokeColor = "#0e7490"; // derma blue
+  else if (value >= 50) strokeColor = "#e11d48"; // red
 
   return (
-    <svg width={size} height={size} className="rotate-[-90deg]">
-      <defs>
-        <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#4f46e5" />
-          <stop offset="100%" stopColor="#06b6d4" />
-        </linearGradient>
-      </defs>
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke="#e5e7eb"
-        strokeWidth={strokeWidth}
-        fill="none"
-      />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke="url(#progress-gradient)"
-        strokeWidth={strokeWidth}
-        fill="none"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg className="absolute top-0 left-0" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#e0e0e0"
+          strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={progress}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="font-bold text-xl text-derma-blue-800">{value}%</span>
+      </div>
+    </div>
+  );
+};

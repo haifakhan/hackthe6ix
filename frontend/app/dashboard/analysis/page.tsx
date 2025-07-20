@@ -1,16 +1,16 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { ArrowLeft, Lightbulb, FlaskConical, ShoppingBag } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import { Separator } from "@/components/ui/separator"
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowLeft, Lightbulb, FlaskConical, ShoppingBag } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import Image from "next/image";
+import { Separator } from "@/components/ui/separator";
 
-type SeverityLevel = "Low" | "Medium" | "High" | "Urgent"
+type SeverityLevel = "Low" | "Medium" | "High" | "Urgent";
 
 interface AnalysisData {
   imageUrl: string
@@ -27,13 +27,18 @@ interface AnalysisData {
   homemadeRemedies: string[]
 }
 
-// Custom circular progress component using pure CSS
 const CircularProgress = ({ value, size = 80 }: { value: number; size?: number }) => {
-  const strokeWidth = 8;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const progress = circumference - (value / 100) * circumference;
-  
+  const strokeWidth = 14
+  const radius = (size - strokeWidth) / 2
+  const circumference = 2 * Math.PI * radius
+  const progress = circumference - (value / 100) * circumference
+
+  let strokeColor = "#14b8a6" // default: teal
+
+  if (value >= 90) strokeColor = "#22c55e" // green
+  else if (value >= 70) strokeColor = "#0e7490" // derma blue
+  else if (value >= 50) strokeColor = "#e11d48" // red
+
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg className="absolute top-0 left-0" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -50,44 +55,55 @@ const CircularProgress = ({ value, size = 80 }: { value: number; size?: number }
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke={strokeColor}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={progress}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          className="text-derma-teal-500"
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="font-bold text-lg">{value}%</span>
+        <span className="font-bold text-xl text-derma-blue-800">{value}%</span>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default function AnalysisResultsPage() {
-  const searchParams = useSearchParams()
-  const caseType = searchParams.get("case") // 'c' or 'h'
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const caseType = searchParams.get("case");
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const img = sessionStorage.getItem('uploadedImage');
+    if (img) setUploadedImage(img);
+  }, []);
 
   const analysisPresets: Record<"c" | "h", AnalysisData> = {
     c: {
       imageUrl: "/skin.jpg",
-      result: "Possible Skin Cancer (Melanoma)",
+      result: "Basal Cell Carcinoma",
       confidence: 87,
       severity: "Urgent",
-      aiInsights: "The analysis suggests this lesion may indicate melanoma. Immediate follow-up with a certified dermatologist is critical.",
+      aiInsights: "The analysis suggests this lesion may be consistent with Basal Cell Carcinoma (BCC), a common form of skin cancer. While typically slow-growing, timely evaluation is important to prevent local tissue damage.",
       recommendations: [
-        "Do not ignore this result — book an urgent dermatology consult.",
-        "Avoid sun exposure until further diagnosis is complete.",
-        "Track any changes in size, asymmetry, or color.",
+       "Schedule an appointment with a dermatologist for further examination and biopsy.",
+      "Avoid excessive sun exposure and wear protective clothing or sunscreen.",
+      "Monitor the lesion for changes in size, texture, or ulceration.",
       ],
       products: [
-        {
-          name: "Neutrogena Sensitive Skin Sunscreen SPF 60+",
-          imageUrl: "/placeholder.svg?height=48&width=48",
-          link: "#",
-        },
+       {
+        name: "Neutrogena Sensitive Skin Sunscreen SPF 60+",
+        imageUrl: "/placeholder.svg?height=48&width=48",
+        link: "#",
+      },
+      {
+        name: "La Roche-Posay Anthelios Mineral Tinted Sunscreen SPF 50",
+        imageUrl: "/placeholder.svg?height=48&width=48",
+        link: "#",
+      },
       ],
       homemadeRemedies: [
         "None — please seek professional medical attention immediately.",
@@ -95,8 +111,8 @@ export default function AnalysisResultsPage() {
     },
     h: {
       imageUrl: "/skin.jpg",
-      result: "Healthy Skin – No Conditions Detected",
-      confidence: 98,
+      result: "Benign Keratosis (Healthy Skin)",
+      confidence: 99,
       severity: "Low",
       aiInsights: "Your skin appears healthy with no visible signs of dermatological concern. Maintain your current skincare habits.",
       recommendations: [
@@ -130,7 +146,7 @@ export default function AnalysisResultsPage() {
           <h1 className="text-3xl font-bold mb-4 text-red-700">Missing or Invalid Case</h1>
           <p className="mb-6 text-red-600 text-lg">Please return to the upload page and try again.</p>
           <Link href="/dashboard/chat">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-lg h-12 rounded-xl shadow-md transition-transform hover:scale-105">
+            <Button className="bg-red-600 hover:bg-blue-700 text-white px-6 py-3 text-lg h-12 rounded-xl shadow-md transition-transform hover:scale-105">
               Back to Chat
             </Button>
           </Link>
@@ -139,7 +155,7 @@ export default function AnalysisResultsPage() {
     )
   }
 
-  const analysisData = analysisPresets[caseType as "c" | "h"]
+  const analysisData = analysisPresets[caseType as "c" | "h"];
   const severityColor =
     analysisData.severity === "Low"
       ? "bg-green-100 text-green-800 border-green-300"
@@ -148,50 +164,33 @@ export default function AnalysisResultsPage() {
         : analysisData.severity === "High"
           ? "bg-orange-100 text-orange-800 border-orange-300"
           : "bg-red-100 text-red-800 border-red-300"
-          
-  const severityProgressColor = 
-    analysisData.severity === "Low"
-      ? "text-green-500"
-      : analysisData.severity === "Medium"
-        ? "text-yellow-500"
-        : analysisData.severity === "High"
-          ? "text-orange-500"
-          : "text-red-500"
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-derma-blue-50 to-derma-teal-50 p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-derma-blue-700 bg-clip-text bg-gradient-to-r from-derma-blue-700 to-derma-teal-600 inline-block">
+            <h1 className="text-4xl md:text-5xl font-bold text-red-700 bg-clip-text bg-gradient-to-r from-derma-blue-700 to-derma-teal-600 inline-block">
               Skin Analysis Dashboard
             </h1>
-            <p className="text-derma-blue-500 mt-2">AI-powered dermatological assessment</p>
+            <p className="text-teal-500 mt-2">AI-powered dermatological assessment</p>
           </div>
           <Link href="/dashboard/chat" passHref>
-            <Button variant="outline" className="bg-white hover:bg-derma-blue-50 text-derma-blue-700 px-5 py-3 rounded-xl border-derma-blue-300 shadow-sm transition-all hover:shadow-md">
-              <ArrowLeft className="mr-2 h-5 w-5 text-derma-blue-600" /> 
+            <Button variant="outline" className="bg-white hover:bg-red-50 text-red-700 px-5 py-3 rounded-xl border-derma-blue-300 shadow-sm transition-all hover:shadow-md">
+              <ArrowLeft className="mr-2 h-5 w-5 text-red-600" />
               Back to Chat
             </Button>
           </Link>
         </div>
 
         <Card className="w-full overflow-hidden rounded-2xl border-0 shadow-2xl bg-white/90">
-          <CardHeader className="pb-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <CardTitle className="text-3xl font-bold text-derma-blue-700">Detailed Skin Analysis</CardTitle>
-                <p className="text-derma-blue-500">In-depth insights powered by Dermobot</p>
-              </div>
-            </div>
-          </CardHeader>
-          
+          <CardHeader className="pb-6" />
           <CardContent className="grid gap-8 p-6 md:grid-cols-[1fr_1.5fr]">
-            {/* Image Section */}
+            {/* Image & Diagnosis */}
             <div className="flex flex-col gap-6">
               <div className="relative h-80 w-full overflow-hidden rounded-2xl border-4 border-white shadow-xl">
                 <Image
-                  src={analysisData.imageUrl || "/placeholder.svg"}
+                  src={uploadedImage || analysisData.imageUrl}
                   alt="Uploaded skin image"
                   layout="fill"
                   objectFit="cover"
@@ -201,7 +200,7 @@ export default function AnalysisResultsPage() {
                   <h3 className="text-xl font-bold text-white">Detected: {analysisData.result}</h3>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-derma-blue-50 rounded-xl p-4 border border-derma-blue-200">
                   <p className="text-derma-blue-500 font-medium">Diagnosis</p>
@@ -219,22 +218,19 @@ export default function AnalysisResultsPage() {
                   </div>
                 </div>
               </div>
-              
-              {/* Confidence Score - Moved below diagnosis and severity */}
-              <div className="bg-white rounded-xl p-5 border border-derma-blue-200 shadow-sm flex flex-col items-center">
-                <h2 className="font-semibold text-derma-blue-800 mb-3">Confidence Score</h2>
-                <div className={cn(severityProgressColor)}>
-                  <CircularProgress value={analysisData.confidence} size={350} />
-                </div>
+
+              {/* Confidence Score */}
+              <div className="rounded-xl p-10 border border-derma-blue-200 bg-gradient-to-br from-white to-derma-teal-50 shadow-md flex flex-col items-center">
+                <h2 className="font-semibold text-derma-blue-700 mb-3">Confidence Score</h2>
+                <CircularProgress value={analysisData.confidence} size={350} />
               </div>
             </div>
 
-            {/* Insights & Recommendations Section */}
+            {/* AI Insights & Suggestions */}
             <div className="space-y-8">
-              {/* AI Insights */}
-              <div className="rounded-2xl bg-gradient-to-br from-derma-blue-50 to-derma-teal-50 border border-derma-blue-200 p-5 shadow-sm">
+              <div className="rounded-2xl bg-green-50 to-derma-teal-50 border border-derma-blue-200 p-5 shadow-sm">
                 <h3 className="flex items-center text-xl font-semibold text-derma-blue-700 mb-3">
-                  <Lightbulb className="mr-2 h-6 w-6 text-derma-teal-600 bg-derma-teal-100 p-1 rounded-full" /> 
+                  <Lightbulb className="mr-2 h-6 w-6 text-derma-teal-600 bg-derma-teal-100 p-1 rounded-full" />
                   AI Insights
                 </h3>
                 <p className="text-derma-blue-800 leading-relaxed bg-white/80 rounded-lg p-4 border border-derma-blue-100">
@@ -244,15 +240,14 @@ export default function AnalysisResultsPage() {
 
               <Separator />
 
-              {/* Recommendations */}
               <div className="rounded-2xl bg-gradient-to-br from-derma-blue-50 to-derma-teal-50 border border-derma-blue-200 p-5 shadow-sm">
                 <h3 className="flex items-center text-xl font-semibold text-derma-blue-700 mb-3">
-                  <FlaskConical className="mr-2 h-6 w-6 text-derma-teal-600 bg-derma-teal-100 p-1 rounded-full" /> 
+                  <FlaskConical className="mr-2 h-6 w-6 text-derma-teal-600 bg-derma-teal-100 p-1 rounded-full" />
                   Personalized Recommendations
                 </h3>
                 <ul className="space-y-3">
                   {analysisData.recommendations.map((rec, index) => (
-                    <li 
+                    <li
                       key={index}
                       className="flex items-start p-3 bg-white rounded-lg border border-derma-blue-100 shadow-sm"
                     >
@@ -267,13 +262,12 @@ export default function AnalysisResultsPage() {
 
               <Separator />
 
-              {/* Products & Homemade Remedies */}
-              <div className="rounded-2xl bg-gradient-to-br from-derma-blue-50 to-derma-teal-50 border border-derma-blue-200 p-5 shadow-sm">
+              <div className="rounded-2xl bg-gradient-to-br from-red-50 to-green-50 border border-derma-blue-200 p-5 shadow-sm">
                 <h3 className="flex items-center text-xl font-semibold text-derma-blue-700 mb-3">
-                  <ShoppingBag className="mr-2 h-6 w-6 text-derma-teal-600 bg-derma-teal-100 p-1 rounded-full" /> 
+                  <ShoppingBag className="mr-2 h-6 w-6 text-derma-teal-600 bg-derma-teal-100 p-1 rounded-full" />
                   Suggested Solutions
                 </h3>
-                
+
                 <div className="mb-4">
                   <h4 className="font-medium text-derma-blue-700 mb-2 flex items-center">
                     <ShoppingBag className="mr-2 h-4 w-4" /> Recommended Products
@@ -301,7 +295,7 @@ export default function AnalysisResultsPage() {
                     ))}
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="font-medium text-derma-blue-700 mb-2 flex items-center">
                     <Lightbulb className="mr-2 h-4 w-4" /> Homemade Remedies
@@ -321,7 +315,7 @@ export default function AnalysisResultsPage() {
               </div>
             </div>
           </CardContent>
-          
+
           <CardFooter className="border-t border-derma-blue-200 pt-4 pb-6 px-6 text-center text-sm text-derma-blue-500">
             <p>
               Disclaimer: Dermobot provides guidance for informational purposes only and is not a substitute for

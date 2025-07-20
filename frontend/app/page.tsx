@@ -27,7 +27,7 @@ export default function HomePage() {
           </h1>
         </div>
         <p className="max-w-2xl text-lg text-white md:text-xl animate-fade-in-up delay-200">
-          description
+          Dermobot is an AI-driven web app that delivers preventative skin care support in minutes
         </p>
 
         {/* 👇 Login Button */}
