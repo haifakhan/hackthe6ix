@@ -40,7 +40,7 @@ export function SkinAnalysisCard({
     <Card className="w-full animate-fade-in-up overflow-hidden">
       <CardHeader className="border-b pb-4">
         <CardTitle className="text-3xl font-bold text-derma-blue-700">Detailed Skin Analysis</CardTitle>
-        <p className="text-muted-foreground">In-depth insights powered by DermaScan AI.</p>
+        <p className="text-muted-foreground">In-depth insights powered by Dermobot.</p>
       </CardHeader>
       <CardContent className="grid gap-8 p-6 md:grid-cols-2">
         {/* Image and Confidence Section */}
@@ -128,7 +128,7 @@ export function SkinAnalysisCard({
       </CardContent>
       <CardFooter className="border-t pt-4 text-center text-sm text-muted-foreground">
         <p>
-          Disclaimer: DermaScan AI provides guidance for informational purposes only and is not a substitute for
+          Disclaimer: Dermobot provides guidance for informational purposes only and is not a substitute for
           professional medical advice. Always consult a qualified healthcare provider for diagnosis and treatment.
         </p>
       </CardFooter>

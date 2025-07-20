@@ -1,10 +1,16 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -17,29 +23,32 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Simulate authentication
     if (email && password) {
       login()
-      router.push("/dashboard/profile") // Redirect to profile completion after "login"
+      router.push("/dashboard/profile")
     } else {
       alert("Please enter email and password.")
     }
   }
 
   return (
-    <Card className="w-full max-w-md animate-fade-in-up">
+    <Card className="w-[600px] h-[700px] p-8 bg-white/50 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl animate-fade-in-up flex flex-col justify-center">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-derma-blue-700">
-          {type === "login" ? "Welcome Back!" : "Join DermaScan AI"}
+        <CardTitle className="text-4xl font-bold text-derma-blue-900 drop-shadow-sm">
+          {type === "login" ? "Welcome Back!" : "Join Dermobot"}
         </CardTitle>
-        <CardDescription>
-          {type === "login" ? "Sign in to your account" : "Create your account to get started"}
+        <CardDescription className="text-xl text-derma-blue-800 mt-2">
+          {type === "login"
+            ? "Sign in to your account"
+            : "Create your account to get started"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+      <CardContent className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-lg text-derma-blue-900 font-semibold">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -47,35 +56,48 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="text-lg"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+          <div className="space-y-3">
+            <Label htmlFor="password" className="text-lg text-derma-blue-900 font-semibold">
+              Password
+            </Label>
             <Input
               id="password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="text-lg"
             />
           </div>
-          <Button type="submit" className="w-full bg-derma-blue-500 hover:bg-derma-blue-600">
+          <Button
+            type="submit"
+            className="w-full bg-derma-blue-600 hover:bg-derma-blue-700 text-white text-lg font-semibold py-3"
+          >
             {type === "login" ? "Login" : "Register"}
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="text-center text-sm text-muted-foreground">
+      <CardFooter className="text-center text-base text-derma-blue-700">
         {type === "login" ? (
           <p>
             Don&apos;t have an account?{" "}
-            <a href="/register" className="font-medium text-derma-blue-500 hover:underline">
+            <a
+              href="/register"
+              className="font-medium text-derma-blue-600 hover:underline"
+            >
               Register
             </a>
           </p>
         ) : (
           <p>
             Already have an account?{" "}
-            <a href="/login" className="font-medium text-derma-blue-500 hover:underline">
+            <a
+              href="/login"
+              className="font-medium text-derma-blue-600 hover:underline"
+            >
               Login
             </a>
           </p>
