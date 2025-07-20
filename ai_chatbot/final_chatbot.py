@@ -84,10 +84,10 @@ agent = initialize_agent(
     system_message=systemMessage
 )
 
-while True:
-    user_input = input("You: ")
-    if user_input.lower() in ["exit", "quit", "stop", "bye"]:
-        print("Exiting the agent. Goodbye!")
-        break
-    response = agent({"input": user_input})
-    print("Agent:", response)
+# while True:
+#     user_input = input("You: ")
+#     if user_input.lower() in ["exit", "quit", "stop", "bye"]:
+#         print("Exiting the agent. Goodbye!")
+#         break
+#     response = agent({"input": user_input})
+#     print("Agent:", response)

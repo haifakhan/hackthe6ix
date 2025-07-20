@@ -86,7 +86,7 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-derma-blue-700">Complete Your Profile</CardTitle>
           <CardDescription>
-            Provide some basic information to personalize your DermaScan AI experience.
+            Provide some basic information to personalize your Dermobot experience.
           </CardDescription>
         </CardHeader>
 

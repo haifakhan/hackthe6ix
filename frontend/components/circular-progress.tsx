@@ -13,7 +13,7 @@ interface CircularProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 export function CircularProgress({
   value,
   size = 100,
-  strokeWidth = 8,
+  strokeWidth = 22,
   trackColor = "hsl(var(--derma-blue-100))",
   progressColor = "hsl(var(--derma-blue-500))",
   textColor = "hsl(var(--derma-blue-800))",

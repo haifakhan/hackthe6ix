@@ -148,14 +148,7 @@ export function UploadPanel() {
         {/* <div className="absolute top-0 left-0 h-full w-full border border-red-500 z-20" /> */}
       </div>
 
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <h3 className="font-medium text-yellow-800 mb-2">Important Notice</h3>
-        <p className="text-sm text-yellow-700">
-          DermaAI provides preliminary analysis only. For medical diagnosis, 
-          please consult a licensed dermatologist. Results are not a substitute 
-          for professional medical advice.
-        </p>
-      </div>
+      
     </div>
   )
 }

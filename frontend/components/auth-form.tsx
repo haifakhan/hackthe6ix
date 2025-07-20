@@ -34,10 +34,10 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
   return (
     <Card className="w-[600px] h-[700px] p-8 bg-white/50 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl animate-fade-in-up flex flex-col justify-center">
       <CardHeader className="text-center">
-        <CardTitle className="text-4xl font-bold text-derma-blue-900 drop-shadow-sm">
+        <CardTitle className="text-4xl font-bold text-black drop-shadow-sm">
           {type === "login" ? "Welcome Back!" : "Join Dermobot"}
         </CardTitle>
-        <CardDescription className="text-xl text-derma-blue-800 mt-2">
+        <CardDescription className="text-xl text-black mt-2">
           {type === "login"
             ? "Sign in to your account"
             : "Create your account to get started"}
@@ -46,7 +46,7 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
       <CardContent className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-3">
-            <Label htmlFor="email" className="text-lg text-derma-blue-900 font-semibold">
+            <Label htmlFor="email" className="text-lg text-black font-semibold">
               Email
             </Label>
             <Input
@@ -56,11 +56,11 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="text-lg"
+              className="text-lg text-black placeholder:text-gray-500"
             />
           </div>
           <div className="space-y-3">
-            <Label htmlFor="password" className="text-lg text-derma-blue-900 font-semibold">
+            <Label htmlFor="password" className="text-lg text-black font-semibold">
               Password
             </Label>
             <Input
@@ -69,7 +69,7 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="text-lg"
+              className="text-lg text-black placeholder:text-gray-500"
             />
           </div>
           <Button
@@ -80,7 +80,7 @@ export function AuthForm({ type }: { type: "login" | "register" }) {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="text-center text-base text-derma-blue-700">
+      <CardFooter className="text-center text-base text-black">
         {type === "login" ? (
           <p>
             Don&apos;t have an account?{" "}

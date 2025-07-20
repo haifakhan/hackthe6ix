@@ -64,35 +64,46 @@ export function ChatInterface() {
   }, [messages])
 
   const handleSendMessage = async () => {
-    if (input.trim() === "" || isSending) return
+  if (input.trim() === "" || isSending) return;
 
-    setIsSending(true)
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: input.trim(),
-      timestamp: new Date(),
-    }
-    setMessages((prev) => [...prev, newMessage])
-    setInput("")
-    setIsTyping(true)
+  setIsSending(true);
+  const newMessage: Message = {
+    id: Date.now().toString(),
+    sender: "user",
+    text: input.trim(),
+    timestamp: new Date(),
+  };
+  setMessages((prev) => [...prev, newMessage]);
+  setInput("");
+  setIsTyping(true);
 
-    // Simulate AI processing delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+  try {
+    const response = await fetch("http://127.0.0.1:8000/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: newMessage.text }),
+    });
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
 
-    // Simulate AI response
     const aiResponse: Message = {
-      id: (Date.now() + 1).toString(),
-      sender: "ai",
-      text: `I understand you're asking about "${newMessage.text}". For personalized advice, consider uploading an image or providing more details about your skin type. In general:`,
-      timestamp: new Date(),
-      reactions: []
-    }
-    
-    setMessages((prev) => [...prev, aiResponse])
-    setIsTyping(false)
-    setIsSending(false)
+    id: (Date.now() + 1).toString(),
+    sender: "ai",
+    text: data.response.output, // ✅ now it's a plain string
+    timestamp: new Date(),
+    reactions: [],
+    };
+
+    setMessages((prev) => [...prev, aiResponse]);
+  } catch (error) {
+    console.error("Error fetching AI response:", error);
+    // Optionally show user an error message in the chat or toast
+  } finally {
+    setIsTyping(false);
+    setIsSending(false);
   }
+};
+
 
 const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0]
